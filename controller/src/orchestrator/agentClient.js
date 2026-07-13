@@ -3,7 +3,7 @@
 // swappable front end: the orchestrator is "just another agent").
 
 import WebSocket from 'ws';
-import { loadConfig } from '@ae-bridge/shared/config';
+import { loadConfig } from '../../../shared/src/config.js';
 
 export class AgentClient {
   constructor(url) {

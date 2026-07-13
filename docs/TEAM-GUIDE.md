@@ -19,7 +19,7 @@ Ask the host for two things:
 
 **Claude Code:**
 ```bash
-claude mcp add --transport http ae-bridge https://<host-tunnel>/mcp \
+claude mcp add --transport http aftr https://<host-tunnel>/mcp \
   --header "Authorization: Bearer <TOKEN>" \
   --header "ngrok-skip-browser-warning: 1"
 ```

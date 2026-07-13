@@ -6,7 +6,7 @@
 // UI are just two clients of the same protocol.
 
 import { EventEmitter } from 'node:events';
-import { parseEnvelope, serialize, newId } from '@ae-bridge/shared/protocol';
+import { parseEnvelope, serialize, newId } from '../../shared/src/protocol.js';
 import { makeLogger } from './log.js';
 
 const log = makeLogger('agentHub');

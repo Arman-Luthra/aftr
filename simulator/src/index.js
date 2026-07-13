@@ -11,7 +11,7 @@
 // This is how we validate M0/M3/M4 without After Effects.
 
 import WebSocket from 'ws';
-import { loadConfig } from '@ae-bridge/shared/config';
+import { loadConfig } from '../../shared/src/config.js';
 import { createJsxRunner } from './jsxRunner.js';
 import { simulateRender } from './render.js';
 

@@ -11,7 +11,7 @@ import {
   parseEnvelope,
   serialize,
   ENVELOPE_TYPES,
-} from '@ae-bridge/shared/protocol';
+} from '@aftr/shared/protocol';
 
 describe('newId', () => {
   it('generates unique ids', () => {

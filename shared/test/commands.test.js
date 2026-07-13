@@ -6,7 +6,7 @@ import {
   COMMANDS,
   validateCommand,
   commandList,
-} from '@ae-bridge/shared/commands';
+} from '@aftr/shared/commands';
 
 describe('COMMANDS registry', () => {
   it('has all expected commands', () => {

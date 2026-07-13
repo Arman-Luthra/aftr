@@ -56,14 +56,14 @@ describe('MCP server (stdio)', () => {
 
   after(() => { if (child) child.kill(); });
 
-  it('initializes and identifies as ae-bridge with a tools capability', async () => {
+  it('initializes and identifies as aftr with a tools capability', async () => {
     const init = await rpc('initialize', {
       protocolVersion: '2024-11-05',
       capabilities: {},
       clientInfo: { name: 'test', version: '0' },
     });
     assert.ok(init.result, 'initialize returned a result');
-    assert.equal(init.result.serverInfo.name, 'ae-bridge');
+    assert.equal(init.result.serverInfo.name, 'aftr');
     assert.ok(init.result.capabilities.tools, 'advertises tools capability');
     notify('notifications/initialized', {});
   });

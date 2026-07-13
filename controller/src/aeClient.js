@@ -10,8 +10,8 @@ import {
   parseEnvelope,
   serialize,
   ENVELOPE_TYPES,
-} from '@ae-bridge/shared/protocol';
-import { validateCommand } from '@ae-bridge/shared/commands';
+} from '../../shared/src/protocol.js';
+import { validateCommand } from '../../shared/src/commands.js';
 import { makeLogger } from './log.js';
 
 const log = makeLogger('aeClient');

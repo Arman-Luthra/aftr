@@ -1,6 +1,6 @@
 // config.js — Node-only config loader. Reads the repo-root config.json and
 // applies environment overrides. Kept out of the package barrel (it uses fs)
-// so non-Node consumers never pull it in. Import via '@ae-bridge/shared/config'.
+// so non-Node consumers never pull it in. Import via '@aftr/shared/config'.
 
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';

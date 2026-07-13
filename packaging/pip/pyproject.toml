@@ -1,0 +1,30 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "aftr"
+version = "0.1.0"
+description = "Puppeteer for After Effects. Use AE with Claude Code to make production-ready videos."
+readme = "README.md"
+requires-python = ">=3.8"
+license = { text = "MIT" }
+authors = [{ name = "Arman Luthra" }]
+keywords = ["after-effects", "vfx", "motion-graphics", "extendscript", "mcp", "claude", "automation"]
+classifiers = [
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3",
+  "Topic :: Multimedia :: Video",
+  "Environment :: Console",
+]
+
+[project.urls]
+Homepage = "https://github.com/Arman-Luthra/aftr"
+Repository = "https://github.com/Arman-Luthra/aftr"
+Issues = "https://github.com/Arman-Luthra/aftr/issues"
+
+[project.scripts]
+aftr = "aftr_cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["aftr_cli"]

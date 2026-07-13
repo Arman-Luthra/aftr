@@ -10,7 +10,7 @@
 
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { ListToolsRequestSchema, CallToolRequestSchema } from '@modelcontextprotocol/sdk/types.js';
-import { commandList } from '@ae-bridge/shared/commands';
+import { commandList } from '../../shared/src/commands.js';
 
 // Curated default so the tool list stays manageable; AE_MCP_TOOLS=all exposes
 // every registered command. Everything is reachable via ae_command regardless.
@@ -51,7 +51,7 @@ const asError = (m) => ({ content: [{ type: 'text', text: m }], isError: true })
 //            mediaRender(args), errorHint?(err) }
 export function createAeMcpServer({ mode = 'core', allowDev = false, backend }) {
   const { tools, allCmds } = buildTools({ mode, allowDev });
-  const server = new Server({ name: 'ae-bridge', version: '0.1.0' }, { capabilities: { tools: {} } });
+  const server = new Server({ name: 'aftr', version: '0.1.0' }, { capabilities: { tools: {} } });
 
   server.setRequestHandler(ListToolsRequestSchema, async () => ({ tools }));
 

@@ -16,8 +16,8 @@ import { dirname, resolve } from 'node:path';
 import express from 'express';
 import { WebSocketServer } from 'ws';
 
-import { loadConfig } from '@ae-bridge/shared/config';
-import { commandList } from '@ae-bridge/shared/commands';
+import { loadConfig } from '../../shared/src/config.js';
+import { commandList } from '../../shared/src/commands.js';
 import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
 import { AeClient } from './aeClient.js';
 import { AgentHub } from './agentHub.js';

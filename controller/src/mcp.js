@@ -82,4 +82,4 @@ const backend = {
 
 const server = createAeMcpServer({ mode: MODE, allowDev: ALLOW_DEV, backend });
 await server.connect(new StdioServerTransport());
-console.error(`[ae-bridge-mcp] ready (stdio, ${MODE}), forwarding to ${BASE}`);
+console.error(`[aftr-mcp] ready (stdio, ${MODE}), forwarding to ${BASE}`);

@@ -1,10 +1,37 @@
+<div align="center">
+
+<img src="docs/hero.png" alt="aftr" width="880" />
+
 # aftr
 
 ### Puppeteer for After Effects
 
-Drive Adobe After Effects with code: build VFX, animate text, and render, autonomously.
+Use After Effects with Claude Code to make production-ready videos.
+
+[![CI](https://github.com/Arman-Luthra/aftr/actions/workflows/ci.yml/badge.svg)](https://github.com/Arman-Luthra/aftr/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+![Node](https://img.shields.io/badge/node-%3E%3D18-brightgreen)
+[![npm](https://img.shields.io/npm/v/aftr.svg)](https://www.npmjs.com/package/aftr)
+[![PyPI](https://img.shields.io/pypi/v/aftr.svg)](https://pypi.org/project/aftr/)
+[![Docker](https://img.shields.io/badge/ghcr.io-aftr-2496ED?logo=docker&logoColor=white)](https://github.com/Arman-Luthra/aftr/pkgs/container/aftr)
+
+</div>
 
 A Node controller sends JSON commands over a WebSocket to a CEP panel inside AE, which runs them as ExtendScript and returns JSON. On top sits an autonomous, spec-driven pipeline that builds clips and self-corrects them by rendering, reviewing, and revising. Everything is driven programmatically over the socket, with no manual After Effects work.
+
+---
+
+## Install
+
+| Method | Command |
+|---|---|
+| npm (global CLI) | `npm install -g aftr`, then `aftr controller` |
+| npx (no install) | `npx aftr controller` |
+| pip (Python launcher) | `pip install aftr`, then `aftr controller` (needs Node 18+) |
+| Docker | `docker run --rm -p 8787:8787 ghcr.io/arman-luthra/aftr` |
+| From source | clone this repo (below) |
+
+The npm, npx, and Docker paths run the controller, MCP server (`aftr mcp`), and simulator (`aftr sim`). Deploying the CEP panel into After Effects is done from a clone (`npm run deploy:panel`), since it self-signs and installs the extension. The pip package is a thin launcher that forwards to the npm CLI through `npx`.
 
 ---
 
@@ -32,6 +59,26 @@ node examples/flaming-title.mjs "ON FIRE"
 ```
 
 Requires After Effects 2024 to 2026, Node 18+, and `ffmpeg` on your `PATH`. Full Windows and macOS setup is in [section 4](#4-full-setup-with-real-after-effects).
+
+---
+
+## Use After Effects with Claude Code
+
+Every command is exposed as an MCP tool, so Claude Code drives a live After Effects by calling tools. The loop is three steps.
+
+1. Start the bridge and open the panel in AE:
+   ```bash
+   npm run controller          # http://127.0.0.1:8787
+   # in AE: Window > Extensions > aftr  (the status dot turns green)
+   ```
+2. Register aftr as an MCP server in Claude Code:
+   ```bash
+   claude mcp add aftr -- node /ABSOLUTE/PATH/aftr/controller/src/mcp.js
+   ```
+3. Ask in plain language. Claude Code calls `ae_status` first, then builds and renders:
+   > Create a 1080p 5-second comp, add a centered title "LAUNCH" with fire behind it, animate it with blurFade, then render it to mp4.
+
+Claude Code reads the full command set with `ae_list_commands` and can run anything through `ae_command`. The tool catalog and remote-hosting setup (drive a teammate's AE over a tunnel) are in [section 6](#6-driving-the-bridge).
 
 ---
 
@@ -291,14 +338,14 @@ Drive After Effects from any MCP client (Claude Desktop, Claude Code, and others
 npm run controller
 
 # 2a) Claude Code: register the MCP server
-claude mcp add ae-bridge -- node /ABSOLUTE/PATH/aftr/controller/src/mcp.js
+claude mcp add aftr -- node /ABSOLUTE/PATH/aftr/controller/src/mcp.js
 ```
 
 ```jsonc
 // 2b) Claude Desktop: claude_desktop_config.json
 {
   "mcpServers": {
-    "ae-bridge": {
+    "aftr": {
       "command": "node",
       "args": ["/ABSOLUTE/PATH/aftr/controller/src/mcp.js"],
       "env": { "AE_BRIDGE_URL": "http://127.0.0.1:8787", "AE_MCP_TOOLS": "core" }
@@ -361,12 +408,12 @@ Remote MCP works two ways. The controller also serves MCP over HTTP at `POST /mc
 
 ```bash
 # (a) direct HTTP MCP: paste the URL into any MCP client
-claude mcp add --transport http ae-bridge https://your-tunnel.example/mcp \
+claude mcp add --transport http aftr https://your-tunnel.example/mcp \
   --header "Authorization: Bearer your-secret"
 ```
 ```jsonc
 // (b) stdio adapter pointed at the tunnel
-{ "mcpServers": { "ae-bridge": {
+{ "mcpServers": { "aftr": {
   "command": "node", "args": ["/path/aftr/controller/src/mcp.js"],
   "env": { "AE_BRIDGE_URL": "https://your-tunnel.example", "AE_BRIDGE_TOKEN": "your-secret" }
 }}}

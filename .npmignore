@@ -1,0 +1,14 @@
+# Packing rules for `npm pack` / `npm publish`.
+# Its presence makes npm ignore .gitignore, so the built panel/jsx/bundle.jsx
+# (gitignored, rebuilt by the prepack script) ships in the published tarball.
+# The package.json "files" allowlist already scopes what gets in; this trims the rest.
+**/test/
+**/*.test.js
+.github/
+docs/
+Dockerfile
+.dockerignore
+dist/
+out/
+*.log
+.DS_Store

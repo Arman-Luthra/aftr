@@ -1,5 +1,5 @@
 {
-  "name": "@ae-bridge/simulator",
+  "name": "@aftr/simulator",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -10,7 +10,7 @@
     "test": "node --test \"test/**/*.test.js\""
   },
   "dependencies": {
-    "@ae-bridge/shared": "*",
+    "@aftr/shared": "*",
     "ws": "8.21.0"
   }
 }

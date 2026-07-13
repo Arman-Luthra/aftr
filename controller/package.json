@@ -1,5 +1,5 @@
 {
-  "name": "@ae-bridge/controller",
+  "name": "@aftr/controller",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -9,7 +9,7 @@
     "test": "node --test \"test/**/*.test.js\""
   },
   "dependencies": {
-    "@ae-bridge/shared": "*",
+    "@aftr/shared": "*",
     "@modelcontextprotocol/sdk": "^1.29.0",
     "express": "4.22.2",
     "ws": "8.21.0"

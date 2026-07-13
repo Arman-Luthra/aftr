@@ -1,0 +1,11 @@
+.git
+node_modules
+**/node_modules
+dist
+out
+assets
+rendersave
+*.log
+.DS_Store
+panel/jsx/bundle.jsx
+docs/media

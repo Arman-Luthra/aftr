@@ -1,9 +1,44 @@
 {
   "name": "aftr",
   "version": "0.1.0",
-  "private": true,
-  "description": "Puppeteer for After Effects: controller, CEP panel, and JSX command layer, with a headless AE simulator for AE-free validation.",
+  "private": false,
+  "description": "Puppeteer for After Effects. Use AE with Claude Code to make production-ready videos.",
+  "keywords": [
+    "after-effects",
+    "aftereffects",
+    "vfx",
+    "motion-graphics",
+    "extendscript",
+    "cep",
+    "aerender",
+    "mcp",
+    "claude",
+    "automation"
+  ],
+  "license": "MIT",
+  "author": "Arman Luthra",
+  "homepage": "https://github.com/Arman-Luthra/aftr#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Arman-Luthra/aftr.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Arman-Luthra/aftr/issues"
+  },
   "type": "module",
+  "bin": {
+    "aftr": "bin/aftr.js"
+  },
+  "files": [
+    "bin",
+    "controller/src",
+    "shared/src",
+    "simulator/src",
+    "panel",
+    "panel/jsx/bundle.jsx",
+    "presets",
+    "config.json"
+  ],
   "engines": {
     "node": ">=18"
   },
@@ -14,19 +49,28 @@
   ],
   "scripts": {
     "build:jsx": "node panel/build/bundle-jsx.js",
+    "prepack": "npm run build:jsx",
     "dev": "npm run build:jsx && node controller/src/server.js",
     "controller": "node controller/src/server.js",
     "mcp": "node controller/src/mcp.js",
     "sim": "node simulator/src/index.js",
     "sim:dev": "npm run build:jsx && node simulator/src/index.js",
-    "test": "npm run build:jsx && node --test \"controller/test/**/*.test.js\" \"shared/test/**/*.test.js\" \"simulator/test/**/*.test.js\"",
+    "test": "npm run build:jsx && node --test $(find controller/test shared/test simulator/test -name '*.test.js')",
     "e2e": "npm run build:jsx && node controller/test/e2e/run-e2e.js",
     "deploy:panel": "node panel/build/sign-and-deploy.mjs",
     "orchestrate": "node controller/src/orchestrator/demo.js",
     "orchestrate:fire": "node controller/src/orchestrator/demo-fire.js",
     "showreel": "node controller/src/orchestrator/demo-showcase.js"
   },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.29.0",
+    "express": "4.22.2",
+    "ws": "8.21.0"
+  },
   "devDependencies": {
     "zxp-sign-cmd": "^2.0.0"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }
