@@ -18,6 +18,14 @@ Use After Effects with Claude Code to make production-ready videos.
 
 A Node controller sends JSON commands over a WebSocket to a CEP panel inside AE, which runs them as ExtendScript and returns JSON. On top sits an autonomous, spec-driven pipeline that builds clips and self-corrects them by rendering, reviewing, and revising. Everything is driven programmatically over the socket, with no manual After Effects work.
 
+<div align="center">
+
+<img src="docs/pals-title-demo.gif" alt="aftr demo — a title sequence built and rendered entirely through the bridge" width="880" />
+
+*A title sequence built and rendered entirely through aftr — no manual After Effects work.*
+
+</div>
+
 ---
 
 ## Get the MCP running
