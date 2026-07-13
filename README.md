@@ -21,6 +21,28 @@ A Node controller sends JSON commands over a WebSocket to a CEP panel inside AE,
 
 ---
 
+## Get the MCP running
+
+Wire aftr into Claude Code in two commands. Start the controller (it serves the MCP endpoint), then point Claude Code at it.
+
+```bash
+npx aftr-studio controller                          # no install, needs Node 18+
+pip install aftr-studio && aftr controller          # pip
+docker run -p 8787:8787 ghcr.io/arman-luthra/aftr   # docker
+```
+
+```bash
+claude mcp add --transport http aftr http://127.0.0.1:8787/mcp
+```
+
+Open After Effects and the panel (Window > Extensions > aftr; deploy it once from a clone with `npm run deploy:panel`). Then ask Claude Code in plain language:
+
+> Create a 1080p 5s comp, add a title "LAUNCH" with fire behind it, animate blurFade, then render to mp4.
+
+Claude Code sees every command as a tool: it calls `ae_status` first, lists the set with `ae_list_commands`, and runs anything through `ae_command`. Prefer a stdio server? Use `claude mcp add aftr -- npx -y aftr-studio mcp` (keep the controller running too).
+
+---
+
 ## Install
 
 | Method | Command |
@@ -59,26 +81,6 @@ node examples/flaming-title.mjs "ON FIRE"
 ```
 
 Requires After Effects 2024 to 2026, Node 18+, and `ffmpeg` on your `PATH`. Full Windows and macOS setup is in [section 4](#4-full-setup-with-real-after-effects).
-
----
-
-## Use After Effects with Claude Code
-
-Every command is exposed as an MCP tool, so Claude Code drives a live After Effects by calling tools. The loop is three steps.
-
-1. Start the bridge and open the panel in AE:
-   ```bash
-   npm run controller          # http://127.0.0.1:8787
-   # in AE: Window > Extensions > aftr  (the status dot turns green)
-   ```
-2. Register aftr as an MCP server in Claude Code:
-   ```bash
-   claude mcp add aftr -- node /ABSOLUTE/PATH/aftr/controller/src/mcp.js
-   ```
-3. Ask in plain language. Claude Code calls `ae_status` first, then builds and renders:
-   > Create a 1080p 5-second comp, add a centered title "LAUNCH" with fire behind it, animate it with blurFade, then render it to mp4.
-
-Claude Code reads the full command set with `ae_list_commands` and can run anything through `ae_command`. The tool catalog and remote-hosting setup (drive a teammate's AE over a tunnel) are in [section 6](#6-driving-the-bridge).
 
 ---
 
