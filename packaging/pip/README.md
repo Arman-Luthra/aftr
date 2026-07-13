@@ -2,10 +2,10 @@
 
 Puppeteer for After Effects. Use AE with Claude Code to make production-ready videos.
 
-aftr is a Node.js tool. This package is a thin launcher that forwards to the npm-published `aftr` CLI through `npx`, so `pip install aftr` gives you the `aftr` command without a separate npm install.
+aftr is a Node.js tool. This package is a thin launcher that forwards to the npm-published `aftr-studio` CLI through `npx`, so `pip install aftr-studio` gives you the `aftr` command without a separate npm install.
 
 ```bash
-pip install aftr
+pip install aftr-studio
 
 aftr controller   # start the controller (WebSocket + REST + web UI)
 aftr mcp          # start the stdio MCP server for Claude Code / Desktop

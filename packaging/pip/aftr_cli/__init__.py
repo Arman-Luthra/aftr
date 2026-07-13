@@ -2,7 +2,7 @@
 
 aftr is a Node.js tool: a controller plus a CEP panel that drives Adobe After
 Effects, with an MCP server on top. This package does not reimplement it. It
-forwards to the npm-published `aftr` CLI through `npx`, so `pip install aftr`
+forwards to the npm-published `aftr-studio` CLI through `npx`, so `pip install aftr-studio`
 gives you the `aftr` command without a separate npm step.
 
 Requirements: Node.js 18+ on PATH. Driving a real After Effects also needs the
@@ -22,7 +22,7 @@ import sys
 __version__ = "0.1.0"
 
 # Pin the npm package to this launcher's version so the two move together.
-NPM_SPEC = "aftr@0.1.0"
+NPM_SPEC = "aftr-studio@0.1.0"
 
 
 def main() -> int:

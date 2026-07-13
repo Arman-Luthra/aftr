@@ -11,8 +11,8 @@ Use After Effects with Claude Code to make production-ready videos.
 [![CI](https://github.com/Arman-Luthra/aftr/actions/workflows/ci.yml/badge.svg)](https://github.com/Arman-Luthra/aftr/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 ![Node](https://img.shields.io/badge/node-%3E%3D18-brightgreen)
-[![npm](https://img.shields.io/npm/v/aftr.svg)](https://www.npmjs.com/package/aftr)
-[![PyPI](https://img.shields.io/pypi/v/aftr.svg)](https://pypi.org/project/aftr/)
+[![npm](https://img.shields.io/npm/v/aftr-studio.svg)](https://www.npmjs.com/package/aftr-studio)
+[![PyPI](https://img.shields.io/pypi/v/aftr-studio.svg)](https://pypi.org/project/aftr-studio/)
 [![Docker](https://img.shields.io/badge/ghcr.io-aftr-2496ED?logo=docker&logoColor=white)](https://github.com/Arman-Luthra/aftr/pkgs/container/aftr)
 
 </div>
@@ -25,9 +25,9 @@ A Node controller sends JSON commands over a WebSocket to a CEP panel inside AE,
 
 | Method | Command |
 |---|---|
-| npm (global CLI) | `npm install -g aftr`, then `aftr controller` |
-| npx (no install) | `npx aftr controller` |
-| pip (Python launcher) | `pip install aftr`, then `aftr controller` (needs Node 18+) |
+| npm (global CLI) | `npm install -g aftr-studio`, then `aftr controller` |
+| npx (no install) | `npx aftr-studio controller` |
+| pip (Python launcher) | `pip install aftr-studio`, then `aftr controller` (needs Node 18+) |
 | Docker | `docker run --rm -p 8787:8787 ghcr.io/arman-luthra/aftr` |
 | From source | clone this repo (below) |
 

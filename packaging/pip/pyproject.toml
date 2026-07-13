@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "aftr"
+name = "aftr-studio"
 version = "0.1.0"
 description = "Puppeteer for After Effects. Use AE with Claude Code to make production-ready videos."
 readme = "README.md"
