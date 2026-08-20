@@ -2,13 +2,22 @@
 
 function _propSnapshot(prop) {
   var snap = { name: prop.name, matchName: prop.matchName };
-  try { snap.value = prop.value; } catch (e) {}
+  try { snap.value = AEB.jsonSafe(prop.value); } catch (e) {}
   try { snap.numKeys = prop.numKeys; } catch (e) {}
-  try { if (prop.expressionEnabled) snap.expression = prop.expression; } catch (e) {}
+  // Report the expression whether or not it is enabled -- a disabled
+  // expression is still the thing a caller wants to read and edit.
+  try {
+    if (prop.canSetExpression) {
+      snap.expressionEnabled = prop.expressionEnabled;
+      if (prop.expression) snap.expression = prop.expression;
+    }
+  } catch (e) {}
   if (snap.numKeys && snap.numKeys > 0) {
     snap.keys = [];
     for (var k = 1; k <= snap.numKeys; k++) {
-      try { snap.keys.push({ index: k, time: prop.keyTime(k), value: prop.keyValue(k) }); } catch (e) {}
+      try {
+        snap.keys.push({ index: k, time: prop.keyTime(k), value: AEB.jsonSafe(prop.keyValue(k)) });
+      } catch (e) {}
     }
   }
   return snap;
@@ -31,8 +40,14 @@ function _groupSummary(group, depth) {
     if (pr.numProperties !== undefined && pr.numProperties > 0 && depth > 0) {
       node.children = _groupSummary(pr, depth - 1);
     } else {
-      try { node.value = pr.value; } catch (e) {}
-      try { if (pr.expressionEnabled) node.expression = pr.expression; } catch (e) {}
+      try { node.value = AEB.jsonSafe(pr.value, 2); } catch (e) {}
+      try { if (pr.numKeys) node.numKeys = pr.numKeys; } catch (e) {}
+      try {
+        if (pr.canSetExpression && pr.expression) {
+          node.expression = pr.expression;
+          node.expressionEnabled = pr.expressionEnabled;
+        }
+      } catch (e) {}
     }
     out.push(node);
   }
@@ -61,7 +76,7 @@ COMMANDS.getLayerDetails = function (p) {
   info.transform = {};
   var names = ["Anchor Point", "Position", "Scale", "Rotation", "Opacity"];
   for (var n = 0; n < names.length; n++) {
-    try { info.transform[names[n]] = tr.property(names[n]).value; } catch (e) {}
+    try { info.transform[names[n]] = AEB.jsonSafe(tr.property(names[n]).value); } catch (e) {}
   }
   // effects
   info.effects = [];

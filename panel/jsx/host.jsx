@@ -43,11 +43,15 @@ AEB.assert = function (cond, msg) {
 };
 
 // --- comps -----------------------------------------------------------------
+// NOTE: ids arrive as JSON and may be numeric strings ("1277") when a caller's
+// tool schema is untyped. Compare numerically so both forms resolve.
 AEB.findCompById = function (id) {
+  var want = Number(id);
+  if (isNaN(want)) return null;
   var p = app.project;
   for (var i = 1; i <= p.numItems; i++) {
     var item = p.item(i);
-    if (item instanceof CompItem && item.id === id) return item;
+    if (item instanceof CompItem && Number(item.id) === want) return item;
   }
   return null;
 };
@@ -64,10 +68,16 @@ AEB.findCompByName = function (name) {
 // Resolve a comp from params: accepts { compId } or { compName } or { comp }.
 AEB.requireComp = function (p) {
   var c = null;
-  if (p.compId !== undefined && p.compId !== null) c = AEB.findCompById(p.compId);
+  if (p.compId !== undefined && p.compId !== null) {
+    c = AEB.findCompById(p.compId);
+    // A non-numeric compId is almost always a name passed to the wrong key.
+    if (!c) c = AEB.findCompByName(p.compId);
+    if (!c && p.compName) c = AEB.findCompByName(p.compName);
+  }
   else if (p.compName) c = AEB.findCompByName(p.compName);
   else if (p.comp !== undefined) {
-    c = (typeof p.comp === "number") ? AEB.findCompById(p.comp) : AEB.findCompByName(p.comp);
+    c = AEB.findCompById(p.comp);
+    if (!c) c = AEB.findCompByName(p.comp);
   } else {
     AEB.assert(false, "compId or compName is required");
   }
@@ -83,11 +93,20 @@ AEB.resolveLayer = function (comp, ref) {
       "layerIndex " + ref + " out of range (comp has " + comp.numLayers + " layers)");
     return comp.layer(ref);
   }
-  // by name
+  // by name -- checked BEFORE any numeric interpretation, because layers are
+  // routinely named things like "-5000" or "1" and an explicit name must win.
   for (var i = 1; i <= comp.numLayers; i++) {
     if (comp.layer(i).name === ref) return comp.layer(i);
   }
-  throw new Error('Layer named "' + ref + '" not found');
+  // No name matched. An untyped tool schema may have stringified an index
+  // ("1" instead of 1), so accept a numeric string as a stack index.
+  var asNum = Number(ref);
+  if (!isNaN(asNum) && asNum >= 1 && asNum <= comp.numLayers &&
+      Math.floor(asNum) === asNum) {
+    return comp.layer(asNum);
+  }
+  throw new Error('Layer named "' + ref + '" not found (comp has ' +
+    comp.numLayers + ' layers)');
 };
 
 // Pick the layer reference out of a params object.
@@ -122,6 +141,110 @@ AEB.layerType = function (layer) {
   try { if (layer.nullLayer) return "null"; } catch (e) {}
   try { if (layer.adjustmentLayer) return "adjustment"; } catch (e) {}
   return "av";
+};
+
+// --- safe serialization ----------------------------------------------------
+// Several AE value objects (TextDocument, MarkerValue, Shape) cannot survive
+// JSON.stringify: the encoder enumerates every attribute, and some throw when
+// read in the wrong mode -- e.g. boxTextSize on POINT text raises
+// "Text document not of Box document type", which killed the whole command.
+// AEB.jsonSafe() converts those into plain objects, reading each field under
+// its own try/catch so an unavailable field is simply omitted.
+
+AEB.textDocToObject = function (td) {
+  var out = {};
+  var keys = [
+    "text", "font", "fontFamily", "fontStyle", "fontSize", "tracking", "leading",
+    "autoLeading", "applyFill", "applyStroke", "strokeWidth", "strokeOverFill",
+    "fauxBold", "fauxItalic", "allCaps", "smallCaps", "baselineShift",
+    "subscript", "superscript", "boxText"
+  ];
+  for (var i = 0; i < keys.length; i++) {
+    try {
+      var val = td[keys[i]];
+      if (val !== undefined) out[keys[i]] = val;
+    } catch (e) {}
+  }
+  // Colors are arrays; copy defensively.
+  try { if (td.applyFill) out.fillColor = [td.fillColor[0], td.fillColor[1], td.fillColor[2]]; } catch (e) {}
+  try { if (td.applyStroke) out.strokeColor = [td.strokeColor[0], td.strokeColor[1], td.strokeColor[2]]; } catch (e) {}
+  // Enumerated values stringify cleanly only via String().
+  try { out.justification = String(td.justification); } catch (e) {}
+  // Box-text-only fields: these are the ones that throw on point text.
+  try { out.boxTextSize = [td.boxTextSize[0], td.boxTextSize[1]]; } catch (e) {}
+  try { out.boxTextPos = [td.boxTextPos[0], td.boxTextPos[1]]; } catch (e) {}
+  return out;
+};
+
+AEB.markerToObject = function (mv) {
+  var out = {};
+  var keys = ["comment", "chapter", "url", "frameTarget", "cuePointName",
+              "duration", "label", "protectedRegion"];
+  for (var i = 0; i < keys.length; i++) {
+    try { if (mv[keys[i]] !== undefined) out[keys[i]] = mv[keys[i]]; } catch (e) {}
+  }
+  return out;
+};
+
+AEB.shapeToObject = function (sh) {
+  var out = {};
+  try { out.closed = sh.closed; } catch (e) {}
+  var keys = ["vertices", "inTangents", "outTangents"];
+  for (var i = 0; i < keys.length; i++) {
+    try {
+      var src = sh[keys[i]];
+      if (src) {
+        var copy = [];
+        for (var j = 0; j < src.length; j++) copy.push([src[j][0], src[j][1]]);
+        out[keys[i]] = copy;
+      }
+    } catch (e) {}
+  }
+  return out;
+};
+
+// Convert any property value into something JSON.stringify can always encode.
+AEB.jsonSafe = function (val, depth) {
+  if (depth === undefined) depth = 3;
+  if (val === null || val === undefined) return null;
+  var t = typeof val;
+  if (t === "string" || t === "number" || t === "boolean") return val;
+  if (t === "function") return undefined;
+
+  try { if (val instanceof TextDocument) return AEB.textDocToObject(val); } catch (e) {}
+  try { if (val instanceof MarkerValue) return AEB.markerToObject(val); } catch (e) {}
+  try { if (val instanceof Shape) return AEB.shapeToObject(val); } catch (e) {}
+
+  // Arrays (and array-like AE vectors) copy element-wise.
+  if (val.length !== undefined && t === "object") {
+    var arr = [];
+    for (var k = 0; k < val.length; k++) {
+      try { arr.push(AEB.jsonSafe(val[k], depth - 1)); } catch (e) { arr.push(null); }
+    }
+    return arr;
+  }
+
+  // Duck-typed fallbacks, in case an instanceof check is unavailable.
+  try { if (typeof val.text === "string" && val.font !== undefined) return AEB.textDocToObject(val); } catch (e) {}
+  try { if (val.comment !== undefined && val.chapter !== undefined) return AEB.markerToObject(val); } catch (e) {}
+  try { if (val.vertices !== undefined && val.closed !== undefined) return AEB.shapeToObject(val); } catch (e) {}
+
+  if (depth <= 0) { try { return String(val); } catch (e) { return null; } }
+
+  // Unknown object: enumerate guardedly so one bad getter cannot throw.
+  var out = {};
+  try {
+    for (var key in val) {
+      try {
+        var v = val[key];
+        if (typeof v === "function") continue;
+        out[key] = AEB.jsonSafe(v, depth - 1);
+      } catch (e) {}
+    }
+  } catch (e) {
+    try { return String(val); } catch (e2) { return null; }
+  }
+  return out;
 };
 
 // --- properties ------------------------------------------------------------
