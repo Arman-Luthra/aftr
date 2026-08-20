@@ -127,13 +127,27 @@ export const COMMANDS = {
 // obviously-malformed calls before they cross the socket. Layer references may
 // be an index (number) or a name (string) per the HLD "address by name" rule.
 // ===========================================================================
+// Id-ish params must cross the socket as numbers: the JSX side compares them
+// against item.id, and MCP tool schemas for these commands are untyped, so a
+// caller can easily hand us "1277" instead of 1277.
+const NUMERIC_PARAMS = ['compId', 'itemId', 'folderId', 'layerIndex', 'toIndex'];
+
+function coerceNumericParams(p) {
+  for (const n of NUMERIC_PARAMS) {
+    if (typeof p[n] === 'string' && p[n].trim() !== '' && !isNaN(Number(p[n]))) {
+      p[n] = Number(p[n]);
+    }
+  }
+  return p;
+}
+
 function requireFields(p, names) {
   for (const n of names) {
     if (p[n] === undefined || p[n] === null) {
       throw new ValidationError(`${n} is required`);
     }
   }
-  return { ...p };
+  return coerceNumericParams({ ...p });
 }
 const pass = (...required) => ({ validate: (p) => requireFields(p, required) });
 const withDesc = (description, required) => ({ description, validate: (p) => requireFields(p, required) });
