@@ -26,11 +26,10 @@ COMMANDS.createComp = function (p) {
   var dur = p.duration || 10;
   var fps = p.frameRate || 30;
 
-  app.beginUndoGroup("aftr: createComp");
-  var comp = app.project.items.addComp(p.name, w, h, 1, dur, fps);
-  app.endUndoGroup();
-
-  return { compId: comp.id, name: comp.name };
+  return AEB.undo("aftr: createComp", function () {
+    var comp = app.project.items.addComp(p.name, w, h, 1, dur, fps);
+    return { compId: comp.id, name: comp.name };
+  });
 };
 
 COMMANDS.setCompSettings = function (p) {

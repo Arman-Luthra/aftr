@@ -217,6 +217,36 @@ describe('JSX Runner + Mock AE DOM', () => {
     });
   });
 
+  describe('undo groups', () => {
+    it('batch opens one AE undo group and inner commands join it instead of nesting', () => {
+      const compId = runner.dispatch('createComp', { name: 'U' }).result.compId;
+      const r = runner.dispatch('batch', { commands: [
+        { command: 'createComp', params: { name: 'U2' } },
+        { command: 'addSolid', params: { compId, name: 'A' } },
+        { command: 'setLayerProperty', params: { compId, layerIndex: 1, property: 'noSuchProp', value: 1 } }, // throws inside its AEB.undo
+        { command: 'addSolid', params: { compId, name: 'B' } },
+      ] });
+      assert.equal(r.ok, true);
+      assert.equal(r.result.ok, 3);
+      assert.equal(runner.dom.app._undoMaxDepth, 1);
+      assert.equal(runner.dom.app._undoDepth, 0);
+      // the inner throw must not leave the wrapper thinking a group is still open
+      runner.dom.app._undoMaxDepth = 0;
+      runner.dispatch('addSolid', { compId, name: 'C' });
+      assert.equal(runner.dom.app._undoMaxDepth, 1);
+    });
+
+    it('applySpec does not nest the groups of the commands it calls', () => {
+      const comp = runner.dispatch('createComp', { name: 'SpecU' });
+      runner.dispatch('applySpec', {
+        compId: comp.result.compId, segmentId: 1,
+        spec: { treatments: [{ type: 'title', text: 'X', deepGlow: { radius: 100 } }] },
+      });
+      assert.equal(runner.dom.app._undoMaxDepth, 1);
+      assert.equal(runner.dom.app._undoDepth, 0);
+    });
+  });
+
   describe('unknown command', () => {
     it('returns an error for unknown commands', () => {
       const r = runner.dispatch('doesNotExist');

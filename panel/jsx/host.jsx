@@ -185,11 +185,15 @@ AEB.normColor = function (c) {
   return [c[0], c[1], c[2]];
 };
 
-// undo wrapper
+// undo wrapper. AE undo groups must not nest (AE 26 shows "Undo group mismatch"
+// on the next Cmd+Z), so a call made while a group is open joins that group.
+AEB._undoDepth = 0;
 AEB.undo = function (name, fn) {
-  app.beginUndoGroup(name);
+  var outer = AEB._undoDepth === 0;
+  if (outer) app.beginUndoGroup(name);
+  AEB._undoDepth++;
   try { return fn(); }
-  finally { app.endUndoGroup(); }
+  finally { AEB._undoDepth--; if (outer) app.endUndoGroup(); }
 };
 
 // Back-compat alias used by earlier command files.

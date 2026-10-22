@@ -6,8 +6,7 @@
 COMMANDS.batch = function (p) {
   AEB.assert(p.commands && p.commands.length, "commands[] is required");
   var results = [];
-  app.beginUndoGroup(p.undoName || "aftr: batch");
-  try {
+  AEB.undo(p.undoName || "aftr: batch", function () {
     for (var i = 0; i < p.commands.length; i++) {
       var c = p.commands[i];
       try {
@@ -20,9 +19,7 @@ COMMANDS.batch = function (p) {
         if (p.stopOnError) break;
       }
     }
-  } finally {
-    app.endUndoGroup();
-  }
+  });
   var okCount = 0;
   for (var j = 0; j < results.length; j++) if (results[j].ok) okCount++;
   return { count: results.length, ok: okCount, failed: results.length - okCount, results: results };

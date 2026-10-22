@@ -287,10 +287,12 @@ class MockApp {
     this.fonts = { allFonts: _mockFonts() };
     this.project = new MockProject();
     this._undoDepth = 0;
+    this._undoMaxDepth = 0; // real AE mis-handles nested groups; tests assert this stays <= 1
   }
 
   beginUndoGroup(name) {
     this._undoDepth++;
+    if (this._undoDepth > this._undoMaxDepth) this._undoMaxDepth = this._undoDepth;
   }
 
   endUndoGroup() {
@@ -301,6 +303,7 @@ class MockApp {
   reset() {
     this.project = new MockProject();
     this._undoDepth = 0;
+    this._undoMaxDepth = 0;
     _nextId = 1;
   }
 }
